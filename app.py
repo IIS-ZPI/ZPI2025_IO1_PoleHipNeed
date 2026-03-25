@@ -15,4 +15,5 @@ def arithmetic_diff(x, y):
   return x - y
 
 def multiplication(a, b):
+    """😍🔥🔥🔥😍😍😍🔥💕💕"""
     return a * b
