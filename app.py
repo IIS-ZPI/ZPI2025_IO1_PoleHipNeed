@@ -8,11 +8,15 @@ def division(a, b):
     return a / b
 
 def addition(a, b):
+    """WOW"""
     """Implements addition interface."""
     return a + b
 
+# this comment makes no difference in the grand scheme of things
 def arithmetic_diff(x, y):
   return x - y
 
 def multiplication(a, b):
     return a * b
+
+# SUPER MEGA KOMENTARZ 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯
