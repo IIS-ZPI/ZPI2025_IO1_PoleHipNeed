@@ -11,8 +11,10 @@ def addition(a, b):
     """Implements addition interface."""
     return a + b
 
+# a * b
 def arithmetic_diff(x, y):
   return x - y
 
+# a / b
 def multiplication(a, b):
     return a * b
