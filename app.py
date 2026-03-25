@@ -16,3 +16,5 @@ def arithmetic_diff(x, y):
 
 def multiplication(a, b):
     return a * b
+
+# SUPER MEGA KOMENTARZ 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯
