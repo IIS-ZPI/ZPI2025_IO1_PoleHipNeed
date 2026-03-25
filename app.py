@@ -3,10 +3,12 @@ print("PoleHipNeed Developer KacperOrkwiszewski")
 print("PoleHipNeed Developer mechanikal")
 print("PoleHipNeed Developer wstruminski")
 
+# a - b
 def division(a, b):
     """Implements division interface."""
     return a / b
 
+# a + b
 def addition(a, b):
     """Implements addition interface."""
     return a + b
