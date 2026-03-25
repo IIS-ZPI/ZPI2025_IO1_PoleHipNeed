@@ -21,6 +21,7 @@ def arithmetic_diff(x, y):
 def multiplication(a, b):
     return a * b
 
+# crazy? i was crazy once, they locked me in a rubber room, a rubber room with rats, rats make me crazy
 # 258380 komentarz 1
 # 258380 comment 2
 # 258380 comment 3
