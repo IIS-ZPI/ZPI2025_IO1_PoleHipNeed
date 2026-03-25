@@ -7,9 +7,6 @@ def division(a, b):
     """Implements division interface."""
     return a / b
 
-def integer_division(a, b):
-    return a // b
-
 def addition(a, b):
     """Implements addition interface."""
     return a + b
