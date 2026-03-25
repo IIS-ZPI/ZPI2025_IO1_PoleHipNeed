@@ -1,10 +1,14 @@
-def arithmetic_diff(x, y):
-  return x - y
-
 print("PoleHipNeed SCRUM Master, DevOps KWojtal-lab")
 print("PoleHipNeed Developer KacperOrkwiszewski")
 print("PoleHipNeed Developer mechanikal")
 print("PoleHipNeed Developer wstruminski")
+
+def addition(a, b):
+    """Implements addition interface."""
+    return a + b
+
+def arithmetic_diff(x, y):
+  return x - y
 
 def multiplication(a, b):
     return a * b
