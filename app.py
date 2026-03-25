@@ -11,6 +11,7 @@ def addition(a, b):
     """Implements addition interface."""
     return a + b
 
+# this comment makes no difference in the grand scheme of things
 def arithmetic_diff(x, y):
   return x - y
 
