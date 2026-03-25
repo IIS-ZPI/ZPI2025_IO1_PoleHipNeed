@@ -8,6 +8,7 @@ def division(a, b):
     return a / b
 
 def addition(a, b):
+    """WOW"""
     """Implements addition interface."""
     return a + b
 
