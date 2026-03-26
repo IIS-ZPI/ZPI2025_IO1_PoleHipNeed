@@ -1,1 +1,0 @@
-print("PoleHipNeed SCRUM Master, DevOps KWojtal-lab")
