@@ -65,8 +65,10 @@ class CLI:
     def __init__(self):
         self.selected_analysis = None
         self.selected_currency = None
+        self.secondary_currency = None
 
-        print(Fore.CYAN+"NBP Data Analysis Tool by PoleHipNeed",Fore.RESET)
+        print(Fore.CYAN+"----------------------------------------------\n    "
+                        "NBP Data Analysis Tool by PoleHipNeed\n----------------------------------------------\n",Fore.RESET)
 
     def my_print(self, message_type, *args):
         formatting = Fore.RESET
@@ -132,9 +134,23 @@ class CLI:
             self.selected_currency = Currency(selected_currency)
             self.my_print('success', '\nselected: ', cli.selected_currency.name.lower().replace('_', ' '))
 
+    def acquire_secondary_currency(self):
+        selected_currency = None
+
+        self.my_print('default', "select currency for comparison by inputting its code\n")
+        self.my_print('info', 'available currencies:\n', Currency.to_string(', '),"\n")
+
+        selected_currency = self.get_input().upper()
+
+        if not Currency.has_value(selected_currency):
+            self.my_print('error', "\nINPUT INVALID (currency code not recognized)\n")
+            self.acquire_secondary_currency()
+        else:
+            self.secondary_currency = Currency(selected_currency)
+            self.my_print('success', '\nselected: ', cli.secondary_currency.name.lower().replace('_', ' '))
+
 
 if __name__ == "__main__":
     cli = CLI()
-    cli.acquire_currency()
-    cli.acquire_analysis_type()
+    cli.acquire_secondary_currency()
 
