@@ -1,4 +1,5 @@
 from enum import IntEnum
+from colorama import Fore
 
 
 class AnalysisType(IntEnum):
@@ -14,29 +15,53 @@ class AnalysisType(IntEnum):
 class CLI:
     def __init__(self):
         self.selected_analysis = None
-        print("Hello, World!")
+        print(Fore.CYAN+"NBP Data Analysis Tool by PoleHipNeed",Fore.RESET)
+
+    def print_error(self, *args):
+        for arg in args:
+            print(Fore.RED + str(arg), end='')
+        print(Fore.RESET)
+
+    def print_info(self,*args):
+        for arg in args:
+            print(Fore.YELLOW + str(arg), end='')
+        print(Fore.RESET)
+
+    def print_success(self, *args):
+        for arg in args:
+            print(Fore.GREEN + str(arg), end='')
+        print(Fore.RESET)
+
+    def print_default(self, *args):
+        for arg in args:
+            print(Fore.RESET + str(arg), end='')
+        print(Fore.RESET)
+
+    def get_input(self):
+        print(Fore.LIGHTGREEN_EX+'INPUT: ', end='')
+        return input()
+
 
     def aquire_analysis_type(self):
-        print("please select type of statistical analys")
-        print("input number corresponding to one of these:")
-        print(int(AnalysisType.SESSION_ANALYSIS), "- Session analysis")
-        print(int(AnalysisType.STATISTICAL_MEASURE), "- Statistical measure")
-        print(int(AnalysisType.CHANGE_DISTRIBUTION),"- Change distribution")
+        self.print_default("select type of statistical analysis\n")
+        self.print_info(int(AnalysisType.SESSION_ANALYSIS), "- Session analysis")
+        self.print_info(int(AnalysisType.STATISTICAL_MEASURE), "- Statistical measure")
+        self.print_info(int(AnalysisType.CHANGE_DISTRIBUTION),"- Change distribution\n")
 
-        user_input = input()
+        user_input = self.get_input()
         selected_analysis = None
         if len(user_input) != 1:
-            print("INPUT INVALID (only one character allowed)")
+            self.print_error("\nINPUT INVALID (only one character allowed)\n")
             self.aquire_analysis_type()
 
         try:
             selected_analysis = int(user_input)
         except ValueError:
-            print("INPUT INVALID (please enter a number)")
+            self.print_error("\nINPUT INVALID (please enter a number)\n")
             self.aquire_analysis_type()
 
         if  not AnalysisType.has_value(selected_analysis):
-            print("INPUT INVALID (number not in available types)")
+            self.print_error("\nINPUT INVALID (number not in available types)\n")
             self.aquire_analysis_type()
         else:
             self.selected_analysis = AnalysisType(selected_analysis)
@@ -44,5 +69,5 @@ class CLI:
 if __name__ == "__main__":
     cli = CLI()
     cli.aquire_analysis_type()
-    print(cli.selected_analysis)
+    cli.print_success('\nselected: ',cli.selected_analysis)
 
