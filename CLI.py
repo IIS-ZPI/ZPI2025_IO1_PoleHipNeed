@@ -17,24 +17,18 @@ class CLI:
         self.selected_analysis = None
         print(Fore.CYAN+"NBP Data Analysis Tool by PoleHipNeed",Fore.RESET)
 
-    def print_error(self, *args):
-        for arg in args:
-            print(Fore.RED + str(arg), end='')
-        print(Fore.RESET)
+    def my_print(self, message_type, *args):
+        formatting = Fore.RESET
 
-    def print_info(self,*args):
-        for arg in args:
-            print(Fore.YELLOW + str(arg), end='')
-        print(Fore.RESET)
+        if message_type == 'info':
+            formatting = Fore.YELLOW
+        if message_type == 'error':
+            formatting = Fore.RED
+        if message_type == 'success':
+            formatting = Fore.GREEN
 
-    def print_success(self, *args):
         for arg in args:
-            print(Fore.GREEN + str(arg), end='')
-        print(Fore.RESET)
-
-    def print_default(self, *args):
-        for arg in args:
-            print(Fore.RESET + str(arg), end='')
+            print(formatting + str(arg), end='')
         print(Fore.RESET)
 
     def get_input(self):
@@ -43,31 +37,36 @@ class CLI:
 
 
     def aquire_analysis_type(self):
-        self.print_default("select type of statistical analysis\n")
-        self.print_info(int(AnalysisType.SESSION_ANALYSIS), "- Session analysis")
-        self.print_info(int(AnalysisType.STATISTICAL_MEASURE), "- Statistical measure")
-        self.print_info(int(AnalysisType.CHANGE_DISTRIBUTION),"- Change distribution\n")
+        selected_analysis = None
+
+        self.my_print('default', "select type of statistical analysis\n")
+        self.my_print('info', int(AnalysisType.SESSION_ANALYSIS), "- Session analysis")
+        self.my_print('info', int(AnalysisType.STATISTICAL_MEASURE), "- Statistical measure")
+        self.my_print('info', int(AnalysisType.CHANGE_DISTRIBUTION),"- Change distribution\n")
 
         user_input = self.get_input()
-        selected_analysis = None
+
         if len(user_input) != 1:
-            self.print_error("\nINPUT INVALID (only one character allowed)\n")
+            self.my_print('error', "\nINPUT INVALID (only one character allowed)\n")
             self.aquire_analysis_type()
+            return
 
         try:
             selected_analysis = int(user_input)
         except ValueError:
-            self.print_error("\nINPUT INVALID (please enter a number)\n")
+            self.my_print('error', "\nINPUT INVALID (please enter a number)\n")
             self.aquire_analysis_type()
+            return
 
         if  not AnalysisType.has_value(selected_analysis):
-            self.print_error("\nINPUT INVALID (number not in available types)\n")
+            self.my_print('error', "\nINPUT INVALID (number not in available types)\n")
             self.aquire_analysis_type()
         else:
             self.selected_analysis = AnalysisType(selected_analysis)
+            self.my_print('success', '\nselected: ', cli.selected_analysis.name)
+
 
 if __name__ == "__main__":
     cli = CLI()
     cli.aquire_analysis_type()
-    cli.print_success('\nselected: ',cli.selected_analysis)
 
