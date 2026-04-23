@@ -114,6 +114,13 @@ class CLI:
         print(Fore.LIGHTGREEN_EX+'INPUT: ', end='')
         return input()
 
+    def acquire_information(self):
+        self.acquire_analysis_type()
+        self.acquire_currency()
+        if self.selected_analysis == AnalysisType.CHANGE_DISTRIBUTION:
+            self.acquire_secondary_currency()
+        else:
+            self.acquire_period()
 
     def acquire_analysis_type(self):
             selected_analysis = None
@@ -204,5 +211,5 @@ class CLI:
 
 if __name__ == "__main__":
     cli = CLI()
-    cli.acquire_period()
+    cli.acquire_information()
 
