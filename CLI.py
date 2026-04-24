@@ -133,27 +133,27 @@ class CLI:
     def acquire_analysis_type(self):
             selected_analysis = None
 
-            self.my_print('default', "select type of statistical analysis ")
+            self.my_print('default', "select type of statistical analysis")
             self.my_print('info', int(AnalysisType.SESSION_ANALYSIS), "- Session analysis")
             self.my_print('info', int(AnalysisType.STATISTICAL_MEASURE), "- Statistical measure")
-            self.my_print('info', int(AnalysisType.CHANGE_DISTRIBUTION),"- Change distribution ")
+            self.my_print('info', int(AnalysisType.CHANGE_DISTRIBUTION),"- Change distribution")
 
             user_input = self.get_input()
 
             if len(user_input) != 1:
-                self.my_print('error', " INPUT INVALID (only one character allowed) ")
+                self.my_print('error', "INPUT INVALID (only one character allowed)")
                 self.acquire_analysis_type()
                 return
 
             try:
                 selected_analysis = int(user_input)
             except ValueError:
-                self.my_print('error', " INPUT INVALID (please enter a number) ")
+                self.my_print('error', "INPUT INVALID (please enter a number)")
                 self.acquire_analysis_type()
                 return
 
             if  not AnalysisType.has_value(selected_analysis):
-                self.my_print('error', " INPUT INVALID (number not in available types) ")
+                self.my_print('error', "INPUT INVALID (number not in available types)")
                 self.acquire_analysis_type()
             else:
                 self.selected_analysis = AnalysisType(selected_analysis)
@@ -163,13 +163,13 @@ class CLI:
     def acquire_currency(self):
         selected_currency = None
 
-        self.my_print('default', "select currency for analysis by inputting its code ")
+        self.my_print('default', "select currency for analysis by inputting its code")
         self.my_print('info', 'available currencies: ', Currency.to_string(', ')," ")
 
         selected_currency = self.get_input().upper()
 
         if not Currency.has_value(selected_currency):
-            self.my_print('error', " INPUT INVALID (currency code not recognized) ")
+            self.my_print('error', "INPUT INVALID (currency code not recognized)")
             self.acquire_currency()
         else:
             self.selected_currency = Currency(selected_currency)
@@ -178,40 +178,44 @@ class CLI:
     def acquire_secondary_currency(self):
         selected_currency = None
 
-        self.my_print('default', "select currency for comparison by inputting its code ")
+        self.my_print('default', "select currency for comparison by inputting its code")
         self.my_print('info', 'available currencies: ', Currency.to_string(', ')," ")
 
         selected_currency = self.get_input().upper()
 
         if not Currency.has_value(selected_currency):
-            self.my_print('error', " INPUT INVALID (currency code not recognized) ")
+            self.my_print('error', "INPUT INVALID (currency code not recognized)")
             self.acquire_secondary_currency()
         else:
             self.secondary_currency = Currency(selected_currency)
-            self.my_print('success',  'selected: ', cli.secondary_currency.name.lower().replace('_', ' '))
+            if self.selected_currency == self.secondary_currency:
+                self.my_print('error', "INPUT INVALID (secondary currency cannot be the same as first currency)")
+                self.acquire_secondary_currency()
+            else:
+                self.my_print('success',  'selected: ', cli.secondary_currency.name.lower().replace('_', ' '))
 
     def acquire_period(self):
         selected_period = None
 
-        self.my_print('default', "select type of statistical analysis ")
+        self.my_print('default', "select analysis period")
         self.my_print('info', AnalysisPeriod.to_string('\n'),' ')
 
         user_input = self.get_input()
 
         if len(user_input) != 1:
-            self.my_print('error', " INPUT INVALID (only one character allowed) ")
+            self.my_print('error', "INPUT INVALID (only one character allowed)")
             self.acquire_period()
             return
 
         try:
             selected_period = int(user_input)
         except ValueError:
-            self.my_print('error', " INPUT INVALID (please enter a number) ")
+            self.my_print('error', "INPUT INVALID (please enter a number)")
             self.acquire_period()
             return
 
         if not AnalysisPeriod.has_value(selected_period):
-            self.my_print('error', " INPUT INVALID (number not in available periods) ")
+            self.my_print('error', "INPUT INVALID (number not in available periods)")
             self.acquire_period()
         else:
             self.analysis_period = AnalysisPeriod(selected_period)
@@ -222,49 +226,51 @@ class CLI:
         print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
     def ask_repeat(self):
-        self.my_print('default', "perform another analysis? (y/n) ")
+        self.my_print('default', "perform another analysis? (y/n)")
         answer = self.get_input()
         if answer.lower() == 'y':
             return True
         elif answer.lower() == 'n':
             return False
         else:
-            self.my_print('error', " INPUT INVALID (input y or n) ")
+            self.my_print('error', "INPUT INVALID (input y or n)")
             return self.ask_repeat()
 
     def ask_export(self):
-        self.my_print('default', "download table as csv? (y/n) ")
+        self.my_print('default', "download table as csv? (y/n)")
         answer = self.get_input()
         if answer.lower() == 'y':
             return True
         elif answer.lower() == 'n':
             return False
         else:
-            self.my_print('error', " INPUT INVALID (input y or n) ")
+            self.my_print('error', "INPUT INVALID (enter y or n)")
             return self.ask_export()
 
     def acquire_period_change_distribution(self):
-        self.my_print('default', "select timeframe length ")
+        self.my_print('default', "select timeframe length")
         self.my_print('info', 1, "- monthly")
-        self.my_print('info', 2, "- quarterly ")
+        self.my_print('info', 2, "- quarterly")
         answer = self.get_input()
         if answer == '1':
             self.change_period = 'monthly'
+            self.my_print('success', 'selected: ', 'monthly')
         elif answer == '2':
             self.change_period = 'quarterly'
+            self.my_print('success', 'selected: ', 'quarterly')
         else:
-            self.my_print('error', " INPUT INVALID (input 1 or 2) ")
-            return self.acquire_period_change_distribution()
+            self.my_print('error', "INPUT INVALID (enter 1 or 2)")
+            self.acquire_period_change_distribution()
 
     def acquire_start_date(self):
-        self.my_print('default', "select start date (format: DD.MM.YYYY) ")
+        self.my_print('default', "select start date (format: DD.MM.YYYY)")
 
         user_input = self.get_input()
 
         try:
             start_date = datetime.strptime(user_input, "%d.%m.%Y")
         except ValueError:
-            self.my_print('error', " INPUT INVALID (wrong date format) ")
+            self.my_print('error', "INPUT INVALID (wrong date format)")
             return self.acquire_start_date()
 
         today = datetime.today()
@@ -274,25 +280,25 @@ class CLI:
         elif self.change_period == 'quarterly':
             min_date = today - relativedelta(months=3)
         else:
-            self.my_print('error', " INTERNAL ERROR: change_period not set ")
+            self.my_print('error', "INTERNAL ERROR: change_period not set")
             return self.acquire_start_date()
 
         if start_date > min_date:
             self.my_print(
                 'error',
-                f" INPUT INVALID (date insufficient, earliest allowed: {min_date.strftime('%d.%m.%Y')})"
+                f"INPUT INVALID (date insufficient, earliest allowed: {min_date.strftime('%d.%m.%Y')})"
             )
             return self.acquire_start_date()
 
         if start_date > today:
-            self.my_print('error', " INPUT INVALID (date cannot be in the future)")
+            self.my_print('error', "INPUT INVALID (date cannot be in the future)")
             return self.acquire_start_date()
 
         self.start_date = start_date
 
         self.my_print(
             'success',
-            " selected: ",
+            "selected: ",
             start_date.strftime("%d/%m/%Y")
         )
 
@@ -307,9 +313,9 @@ if __name__ == "__main__":
     cli = CLI()
     # cli.acquire_period_change_distribution()
     # cli.acquire_start_date()
-    # sample_table = [[1,2,3,4,2,3,4,1,2,3,4],[1,2,3,4,2,3,4,1,2,3,4],[1,2,3,4,2,3,4,1,2,3,4],[1,2,3,4,2,3,4,1,2,3,4]]
-    # headers = ["A", "B", "C", "D","A", "B", "C","A","B","C","D"]
-    # cli.display_table(sample_table, headers, 'sample table title')
+    sample_table = [[1,2,3,4,2,3,4,1,2,3,4],[1,2,3,4,2,3,4,1,2,3,4],[1,2,3,4,2,3,4,1,2,3,4],[1,2,3,4,2,3,4,1,2,3,4]]
+    headers = ["A", "B", "C", "D","A", "B", "C","A","B","C","D"]
+    cli.display_table(sample_table, headers, 'sample table title')
     #
     # cli.ask_repeat()
     # cli.ask_export()
