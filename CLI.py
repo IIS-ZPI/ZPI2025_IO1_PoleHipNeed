@@ -1,8 +1,9 @@
 from enum import IntEnum, Enum
 from tabulate import tabulate
 from colorama import Fore
-from datetime import datetime
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
+from data_fetcher import fetch_currency_data, fetch_secondary_currency_data
 
 
 class AnalysisType(IntEnum):
@@ -303,11 +304,10 @@ class CLI:
         )
 
     def display_status(self):
-
-        self.selected_analysis = None
-        self.selected_currency = None
-        self.secondary_currency = None
-        self.analysis_period = None
+        print(self.selected_analysis)
+        print(self.selected_currency)
+        print(self.secondary_currency)
+        print(self.analysis_period)
 
 if __name__ == "__main__":
     cli = CLI()
@@ -320,4 +320,28 @@ if __name__ == "__main__":
     # cli.ask_repeat()
     # cli.ask_export()
     cli.acquire_information()
+    
+    api_data = fetch_currency_data(
+        cli.selected_currency.value,
+        int(cli.selected_analysis),
+        int(cli.analysis_period) if cli.analysis_period else None,
+        getattr(cli, 'start_date', None)
+    )
+    
+    if api_data is not None:
+        cli.my_print('success', f'Fetched {len(api_data)} quotes for {cli.selected_currency.value}')
+    
+    api_data_secondary = None
+    if int(cli.selected_analysis) == 3 and cli.secondary_currency:
+        today = date.today()
+        start = getattr(cli, 'start_date', None)
+        if start:
+            start_date = start.date() if isinstance(start, datetime) else start
+            api_data_secondary = fetch_secondary_currency_data(
+                cli.secondary_currency.value,
+                start_date,
+                today
+            )
+            if api_data_secondary is not None:
+                cli.my_print('success', f'Fetched {len(api_data_secondary)} quotes for {cli.secondary_currency.value}')
 
