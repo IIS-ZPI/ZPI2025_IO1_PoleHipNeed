@@ -1,5 +1,4 @@
-
-
+import statistics
 
 def calculate_sessions(sessions):
     results = {
@@ -19,10 +18,11 @@ def calculate_sessions(sessions):
     return results
 
 def calculate_statistical_measures(sessions):
-    results = {
-        "median":0,
-        "mode":0,
-        "standard deviation":0,
-        "coefficient of variation":0
+    measures = {
+        "median": statistics.median(sessions),
+        "mode": statistics.mode(sessions),
+        "standard deviation": statistics.stdev(sessions),
+        "coefficient of variation": statistics.pvariance(sessions)
     }
+    return measures
 
