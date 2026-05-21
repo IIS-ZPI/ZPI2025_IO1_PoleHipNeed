@@ -36,22 +36,22 @@ def fetch_quotes(code: str, start: date, end: date) -> list[Quote]:
         response = requests.get(url, timeout=20)
         if response.status_code == 404:
             raise ValueError(
-                f"Nie znaleziono danych dla waluty '{code.upper()}'. "
-                "Sprawdź kod waluty (np. USD, EUR, CHF)."
+                f"No data found for currency '{code.upper()}'. "
+                "Check the currency code (e.g., USD, EUR, CHF)."
             )
         response.raise_for_status()
         payload = response.json()
     except requests.exceptions.SSLError as exc:
         raise RuntimeError(
-            "Błąd SSL podczas łączenia z API NBP. "
-            "Upewnij się, że środowisko ma aktualne certyfikaty lub używa biblioteki requests z certifi."
+            "SSL error while connecting to the NBP API. "
+            "Ensure the environment has up-to-date certificates or use requests with certifi."
         ) from exc
     except requests.exceptions.RequestException as exc:
-        raise RuntimeError(f"Nie udało się połączyć z API NBP: {exc}") from exc
+        raise RuntimeError(f"Failed to connect to the NBP API: {exc}") from exc
 
     rates = payload.get("rates", [])
     if not rates:
-        raise ValueError("API NBP nie zwróciło żadnych notowań dla podanego zakresu.")
+        raise ValueError("The NBP API returned no quotes for the given range.")
 
     quotes: list[Quote] = []
     for item in rates:
@@ -82,21 +82,21 @@ def count_sessions(quotes: Iterable[Quote]) -> tuple[int, int, int]:
 
 def build_periods(today: date) -> list[tuple[str, date]]:
     return [
-        ("Ostatni 1 tydzień", today.fromordinal(today.toordinal() - 7)),
-        ("Ostatnie 2 tygodnie", today.fromordinal(today.toordinal() - 14)),
-        ("Ostatni 1 miesiąc", subtract_months(today, 1)),
-        ("Ostatni 1 kwartał", subtract_months(today, 3)),
-        ("Ostatnie pół roku", subtract_months(today, 6)),
-        ("Ostatni 1 rok", subtract_months(today, 12)),
+        ("Last 1 week", today.fromordinal(today.toordinal() - 7)),
+        ("Last 2 weeks", today.fromordinal(today.toordinal() - 14)),
+        ("Last 1 month", subtract_months(today, 1)),
+        ("Last 1 quarter", subtract_months(today, 3)),
+        ("Last 6 months", subtract_months(today, 6)),
+        ("Last 1 year", subtract_months(today, 12)),
     ]
 
 
 def print_results(currency: str, quotes: list[Quote], today: date) -> None:
     periods = build_periods(today)
 
-    print(f"\nWaluta: {currency.upper()} (kurs średni NBP, tabela A)")
-    print(f"Zakres pobranych danych: {quotes[0].effective_date} -> {quotes[-1].effective_date}")
-    print("\n{:<22} {:>10} {:>10} {:>12} {:>16}".format("Okres", "Wzrost", "Spadek", "Bez zmian", "Liczba sesji"))
+    print(f"\nCurrency: {currency.upper()} (NBP average rate, table A)")
+    print(f"Data range retrieved: {quotes[0].effective_date} -> {quotes[-1].effective_date}")
+    print("\n{:<22} {:>10} {:>10} {:>12} {:>16}".format("Period", "Rise", "Fall", "Unchanged", "Number of sessions"))
     print("-" * 74)
 
     for period_name, start_date in periods:
@@ -118,24 +118,24 @@ def print_results(currency: str, quotes: list[Quote], today: date) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Analiza liczby sesji wzrostowych/spadkowych/bez zmian "
-            "dla waluty na podstawie API NBP."
+            "Analysis of rising/falling/unchanged sessions "
+            "for a currency based on the NBP API."
         )
     )
     parser.add_argument(
         "currency",
         nargs="?",
-        help="Kod waluty, np. USD, EUR, CHF",
+        help="Currency code, e.g., USD, EUR, CHF",
     )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    currency = (args.currency or input("Podaj kod waluty (np. USD): ")).strip().upper()
+    currency = (args.currency or input("Enter currency code (e.g., USD): ")).strip().upper()
 
     if len(currency) != 3 or not currency.isalpha():
-        raise ValueError("Kod waluty musi składać się z 3 liter, np. USD.")
+        raise ValueError("Currency code must consist of 3 letters, e.g., USD.")
 
     today = date.today()
     one_year_ago = subtract_months(today, 12)
@@ -148,4 +148,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        print(f"\nBłąd: {exc}")
+        print(f"\nError: {exc}")
