@@ -1,4 +1,5 @@
 import statistics
+from bisect import bisect_right
 
 def calculate_sessions(sessions):
     results = {
@@ -25,4 +26,23 @@ def calculate_statistical_measures(sessions):
         "coefficient of variation": statistics.pvariance(sessions)
     }
     return measures
+
+def calculate_change_distribution(currency1_history, currency2_history,steps):
+    if len(currency1_history) != len(currency2_history) or steps < 1:
+        raise ValueError
+    previous_ratio = currency1_history[0] / currency2_history[0]
+    changes = []
+    for i in range(1,len(currency1_history)):
+        current_ratio = currency1_history[i] / currency2_history[i]
+        changes.append(current_ratio - previous_ratio)
+        previous_ratio = current_ratio
+    max_ratio = max(changes)
+    min_ratio = min(changes)
+    step = (max_ratio - min_ratio) / steps
+    ratio_ranges = [min_ratio + step * i for i in range(0,steps+1)]
+    results = [0]*steps
+    for ratio in changes:
+        range_bucket = bisect_right(ratio_ranges,ratio) -1
+        results[min(range_bucket,steps-1)] += 1
+    return results, ratio_ranges
 
