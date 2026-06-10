@@ -73,7 +73,6 @@ class Currency(Enum):
     SOUTH_KOREAN_WON = 'KRW'
     CHINESE_YUAN = 'CNY'
     SPECIAL_DRAWING_RIGHTS = 'XDR'
-    POLISH_ZLOTY = 'PLN'
 
     @classmethod
     def has_value(cls, value):
