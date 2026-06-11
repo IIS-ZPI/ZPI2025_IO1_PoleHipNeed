@@ -228,8 +228,10 @@ class CLI:
         self.my_print('default', "perform another analysis? (y/n)")
         answer = self.get_input()
         if answer.lower() == 'y':
+            print(Fore.RESET)
             return True
         elif answer.lower() == 'n':
+            print(Fore.RESET)
             return False
         else:
             self.my_print('error', "INPUT INVALID (input y or n)")
