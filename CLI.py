@@ -156,7 +156,7 @@ class CLI:
                 self.acquire_analysis_type()
             else:
                 self.selected_analysis = AnalysisType(selected_analysis)
-                self.my_print('success',  'selected: ', cli.selected_analysis.name.lower().replace('_', ' '))
+                self.my_print('success',  'selected: ', self.selected_analysis.name.lower().replace('_', ' '))
 
 
     def acquire_currency(self):
@@ -172,7 +172,7 @@ class CLI:
             self.acquire_currency()
         else:
             self.selected_currency = Currency(selected_currency)
-            self.my_print('success',  'selected: ', cli.selected_currency.name.lower().replace('_', ' '))
+            self.my_print('success',  'selected: ', self.selected_currency.name.lower().replace('_', ' '))
 
     def acquire_secondary_currency(self):
         selected_currency = None
@@ -191,7 +191,7 @@ class CLI:
                 self.my_print('error', "INPUT INVALID (secondary currency cannot be the same as first currency)")
                 self.acquire_secondary_currency()
             else:
-                self.my_print('success',  'selected: ', cli.secondary_currency.name.lower().replace('_', ' '))
+                self.my_print('success',  'selected: ', self.secondary_currency.name.lower().replace('_', ' '))
 
     def acquire_period(self):
         selected_period = None
@@ -218,7 +218,7 @@ class CLI:
             self.acquire_period()
         else:
             self.analysis_period = AnalysisPeriod(selected_period)
-            self.my_print('success',  'selected: ', cli.analysis_period.name.lower().replace('_', ' '))
+            self.my_print('success',  'selected: ', self.analysis_period.name.lower().replace('_', ' '))
 
     def display_table(self, table, headers, title):
         print(Fore.LIGHTWHITE_EX + title + Fore.RESET)
