@@ -29,13 +29,9 @@ def calculate_statistical_measures(sessions):
 
 def calculate_change_distribution(currency1_history, currency2_history,steps):
     if len(currency1_history) != len(currency2_history) or steps < 1:
-        raise ValueError
-
-    if 0 in currency1_history or 0 in currency2_history:
         raise ValueError(
-            "Currency history includes 0. Can't calculate change distribution"
+            "data length mismatch for change distribution"
         )
-
     previous_ratio = currency1_history[0] / currency2_history[0]
     changes = []
     for i in range(1,len(currency1_history)):
