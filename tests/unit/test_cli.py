@@ -8,7 +8,7 @@ from CLI import AnalysisType, AnalysisPeriod, Currency
 
 
 class TestAnalysisType(unittest.TestCase):
-    """Testy dla enuma AnalysisType."""
+    """Tests for AnalysisType enum."""
 
     def test_has_value_session_analysis(self):
         self.assertTrue(AnalysisType.has_value(1))
@@ -20,31 +20,31 @@ class TestAnalysisType(unittest.TestCase):
         self.assertTrue(AnalysisType.has_value(3))
 
     def test_has_value_zero_invalid(self):
-        """Wartość 0 nie istnieje w enumie."""
+        """Value 0 does not exist in the enum."""
         self.assertFalse(AnalysisType.has_value(0))
 
     def test_has_value_out_of_range(self):
-        """Wartości spoza zakresu 1-3 powinny zwracać False."""
+        """Values outside the 1-3 range should return False."""
         self.assertFalse(AnalysisType.has_value(4))
         self.assertFalse(AnalysisType.has_value(-1))
         self.assertFalse(AnalysisType.has_value(100))
 
     def test_enum_member_count(self):
-        """AnalysisType powinien mieć dokładnie 3 wartości."""
+        """AnalysisType should have exactly 3 values."""
         self.assertEqual(len(AnalysisType), 3)
 
     def test_enum_values_match_names(self):
-        """Weryfikacja przypisania wartości do nazw."""
+        """Verification of value to name assignments."""
         self.assertEqual(AnalysisType.SESSION_ANALYSIS.value, 1)
         self.assertEqual(AnalysisType.STATISTICAL_MEASURE.value, 2)
         self.assertEqual(AnalysisType.CHANGE_DISTRIBUTION.value, 3)
 
 
 class TestAnalysisPeriod(unittest.TestCase):
-    """Testy dla enuma AnalysisPeriod."""
+    """Tests for AnalysisPeriod enum."""
 
     def test_has_value_all_valid(self):
-        """Wszystkie wartości 1-6 powinny być rozpoznane."""
+        """All values 1-6 should be recognized."""
         for i in range(1, 7):
             with self.subTest(value=i):
                 self.assertTrue(AnalysisPeriod.has_value(i))
@@ -59,11 +59,11 @@ class TestAnalysisPeriod(unittest.TestCase):
         self.assertFalse(AnalysisPeriod.has_value(-1))
 
     def test_enum_member_count(self):
-        """AnalysisPeriod powinien mieć dokładnie 6 wartości."""
+        """AnalysisPeriod should have exactly 6 values."""
         self.assertEqual(len(AnalysisPeriod), 6)
 
     def test_enum_values_match_names(self):
-        """Weryfikacja przypisania wartości do nazw."""
+        """Verification of value to name assignments."""
         self.assertEqual(AnalysisPeriod.ONE_WEEK.value, 1)
         self.assertEqual(AnalysisPeriod.TWO_WEEKS.value, 2)
         self.assertEqual(AnalysisPeriod.ONE_MONTH.value, 3)
@@ -72,28 +72,28 @@ class TestAnalysisPeriod(unittest.TestCase):
         self.assertEqual(AnalysisPeriod.ONE_YEAR.value, 6)
 
     def test_to_string_contains_all_values(self):
-        """to_string() powinien zawierać cyfry 1-6."""
+        """to_string() should contain numbers 1-6."""
         result = AnalysisPeriod.to_string(", ")
         for i in range(1, 7):
             self.assertIn(str(i), result)
 
     def test_to_string_with_different_dividers(self):
-        """to_string() powinien działać z różnymi separatorami."""
+        """to_string() should work with different dividers."""
         result_comma = AnalysisPeriod.to_string(", ")
         result_newline = AnalysisPeriod.to_string("\n")
-        # Obie wersje powinny zawierać te same elementy
+        # Both versions should contain the same elements
         self.assertIn("one week", result_comma)
         self.assertIn("one week", result_newline)
 
     def test_to_string_contains_period_names(self):
-        """to_string() powinien zawierać czytelne nazwy okresów."""
+        """to_string() should contain readable period names."""
         result = AnalysisPeriod.to_string(", ")
         self.assertIn("one week", result)
         self.assertIn("one year", result)
 
 
 class TestCurrency(unittest.TestCase):
-    """Testy dla enuma Currency."""
+    """Tests for Currency enum."""
 
     def test_has_value_usd(self):
         self.assertTrue(Currency.has_value("USD"))
@@ -108,42 +108,42 @@ class TestCurrency(unittest.TestCase):
         self.assertTrue(Currency.has_value("GBP"))
 
     def test_has_value_invalid_code(self):
-        """Nieistniejący kod waluty powinien zwrócić False."""
+        """Non-existent currency code should return False."""
         self.assertFalse(Currency.has_value("XYZ"))
 
     def test_has_value_empty_string(self):
-        """Pusty string nie powinien być rozpoznany."""
+        """Empty string should not be recognized."""
         self.assertFalse(Currency.has_value(""))
 
     def test_has_value_lowercase_invalid(self):
-        """Kod małymi literami nie powinien być rozpoznany (enum jest case-sensitive)."""
+        """Lowercase code should not be recognized (enum is case-sensitive)."""
         self.assertFalse(Currency.has_value("usd"))
 
     def test_has_value_partial_code(self):
-        """Niekompletny kod waluty powinien zwrócić False."""
+        """Incomplete currency code should return False."""
         self.assertFalse(Currency.has_value("US"))
 
     def test_to_string_contains_usd(self):
-        """to_string() powinien zawierać 'USD'."""
+        """to_string() should contain 'USD'."""
         result = Currency.to_string(", ")
         self.assertIn("USD", result)
 
     def test_to_string_contains_eur(self):
-        """to_string() powinien zawierać 'EUR'."""
+        """to_string() should contain 'EUR'."""
         result = Currency.to_string(", ")
         self.assertIn("EUR", result)
 
     def test_to_string_is_string(self):
-        """to_string() powinien zwracać typ str."""
+        """to_string() should return str type."""
         result = Currency.to_string(", ")
         self.assertIsInstance(result, str)
 
     def test_currency_count(self):
-        """Enum powinien zawierać > 0 walut."""
+        """Enum should contain > 0 currencies."""
         self.assertGreater(len(Currency), 0)
 
     def test_all_values_are_three_letter_codes(self):
-        """Wszystkie kody walut powinny mieć długość 3 i być literami."""
+        """All currency codes should have length 3 and consist of letters."""
         for currency in Currency:
             with self.subTest(currency=currency.name):
                 self.assertEqual(len(currency.value), 3)

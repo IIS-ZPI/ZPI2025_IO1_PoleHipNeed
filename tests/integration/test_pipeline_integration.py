@@ -12,7 +12,7 @@ from CLI import AnalysisType, AnalysisPeriod, Currency
 
 
 def _make_mock_response(rates: list) -> MagicMock:
-    """Pomocnik — tworzy zamockowany obiekt odpowiedzi HTTP."""
+    """Helper — creates a mocked HTTP response object."""
     mock_resp = MagicMock()
     mock_resp.status_code = 200
     mock_resp.raise_for_status = MagicMock()
@@ -23,8 +23,8 @@ def _make_mock_response(rates: list) -> MagicMock:
 def _build_dp(analysis_type, currency, period=None,
               secondary_currency=None, start_date=None, change_period=None):
     """
-    Tworzy instancję data_proceser z wstrzykniętym zamockowanym CLI.
-    Omija __init__ (który instantiuje prawdziwe CLI z efektami ubocznymi).
+    Creates a data_proceser instance with a mocked CLI injected.
+    Bypasses __init__ (which instantiates the real CLI with side effects).
     """
     instance = object.__new__(dp_module.data_proceser)
 
@@ -36,7 +36,7 @@ def _build_dp(analysis_type, currency, period=None,
     mock_cli.start_date = start_date
     mock_cli.change_period = change_period
 
-    # Jeden obrót pętli — potem zatrzymaj
+    # One loop iteration — then stop
     mock_cli.ask_repeat.return_value = False
     mock_cli.ask_export.return_value = False
 
@@ -45,19 +45,19 @@ def _build_dp(analysis_type, currency, period=None,
 
 
 # ---------------------------------------------------------------------------
-# INT-05: obsługa błędu API — nie crashuje aplikacji
+# INT-05: API error handling — does not crash the application
 # ---------------------------------------------------------------------------
 
 class TestAPIErrorHandledGracefully(unittest.TestCase):
     """
-    INT-05: data_proceser.run() łapie błędy HTTP i nie propaguje wyjątku.
+    INT-05: data_proceser.run() catches HTTP errors and does not propagate the exception.
 
-    Weryfikuje, że try/except w run() działa poprawnie dla różnych typów błędów.
+    Verifies that try/except in run() works correctly for different error types.
     """
 
     @patch("nbp_sessions.requests.get")
     def test_api_404_does_not_crash(self, mock_get):
-        """Status 404 z API — run() powinien zakończyć się bez wyjątku."""
+        """Status 404 from API — run() should finish without exception."""
         mock_get.return_value.status_code = 404
 
         dp = _build_dp(AnalysisType.SESSION_ANALYSIS, Currency.US_DOLLAR,
@@ -67,11 +67,11 @@ class TestAPIErrorHandledGracefully(unittest.TestCase):
         try:
             dp.run()
         except Exception as e:
-            self.fail(f"run() rzucił nieoczekiwany wyjątek: {e}")
+            self.fail(f"run() raised unexpected exception: {e}")
 
     @patch("nbp_sessions.requests.get")
     def test_network_error_does_not_crash(self, mock_get):
-        """Błąd sieciowy (RequestException) — run() powinien go obsłużyć."""
+        """Network error (RequestException) — run() should handle it."""
         import requests
         mock_get.side_effect = requests.exceptions.ConnectionError("timeout")
 
@@ -82,11 +82,11 @@ class TestAPIErrorHandledGracefully(unittest.TestCase):
         try:
             dp.run()
         except Exception as e:
-            self.fail(f"run() rzucił nieoczekiwany wyjątek: {e}")
+            self.fail(f"run() raised unexpected exception: {e}")
 
     @patch("nbp_sessions.requests.get")
     def test_error_message_displayed_to_user(self, mock_get):
-        """Po błędzie API, CLI powinno wyświetlić komunikat błędu."""
+        """After API error, CLI should display an error message."""
         mock_get.return_value.status_code = 404
 
         dp = _build_dp(AnalysisType.SESSION_ANALYSIS, Currency.US_DOLLAR,
@@ -99,7 +99,7 @@ class TestAPIErrorHandledGracefully(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_run_exits_after_ask_repeat_false(self, mock_get):
-        """run() powinien zakończyć pętlę gdy ask_repeat() zwraca False."""
+        """run() should terminate the loop when ask_repeat() returns False."""
         mock_get.return_value.status_code = 404
 
         dp = _build_dp(AnalysisType.SESSION_ANALYSIS, Currency.US_DOLLAR,
@@ -113,20 +113,20 @@ class TestAPIErrorHandledGracefully(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# INT-06: Pełny pipeline SESSION_ANALYSIS
+# INT-06: Full SESSION_ANALYSIS pipeline
 # ---------------------------------------------------------------------------
 
 class TestFullSessionAnalysisPipeline(unittest.TestCase):
     """
-    INT-06: Pełny pipeline dla analizy sesji.
+    INT-06: Full pipeline for session analysis.
 
-    Sprawdza, że dane przechodzą przez: fetch_quotes → calculate_sessions
-    → display_table z poprawnymi wartościami i strukturą tabeli.
+    Checks that data flows through: fetch_quotes -> calculate_sessions
+    -> display_table with correct values and table structure.
     """
 
     @patch("nbp_sessions.requests.get")
     def test_display_table_called_with_correct_title(self, mock_get):
-        """Tytuł tabeli dla SESSION_ANALYSIS powinien brzmieć 'Session Analysis'."""
+        """Table title for SESSION_ANALYSIS should be 'Session Analysis'."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -144,7 +144,7 @@ class TestFullSessionAnalysisPipeline(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_display_table_has_three_rows(self, mock_get):
-        """Tabela SESSION_ANALYSIS powinna mieć 3 wiersze: Rising, Losing, Flat."""
+        """SESSION_ANALYSIS table should have 3 rows: Rising, Losing, Flat."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -166,7 +166,7 @@ class TestFullSessionAnalysisPipeline(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_session_counts_sum_equals_number_of_quotes(self, mock_get):
-        """Suma Rising+Losing+Flat w tabeli == liczba kwotowań."""
+        """Sum of Rising+Losing+Flat in table == number of quotes."""
         n_quotes = 5
         rates = [{"effectiveDate": f"2024-01-{i+2:02d}", "mid": 4.0 + i * 0.01}
                  for i in range(n_quotes)]
@@ -184,7 +184,7 @@ class TestFullSessionAnalysisPipeline(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_correct_headers_for_session_analysis(self, mock_get):
-        """Nagłówki tabeli SESSION_ANALYSIS: ['Measure', 'Result']."""
+        """Headers of SESSION_ANALYSIS table: ['Measure', 'Result']."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -201,20 +201,20 @@ class TestFullSessionAnalysisPipeline(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# INT-07: Export CSV — pipeline + zapis pliku
+# INT-07: CSV Export — pipeline + file saving
 # ---------------------------------------------------------------------------
 
 class TestCSVExportPipeline(unittest.TestCase):
     """
-    INT-07: Pełny pipeline + eksport do CSV.
+    INT-07: Full pipeline + CSV export.
 
-    Sprawdza, że wyeksportowany plik ma poprawne nagłówki, wiersze i encoding.
-    Używa tymczasowego katalogu — nie pozostawia plików po teście.
+    Checks that the exported file has correct headers, rows, and encoding.
+    Uses a temporary directory — leaves no files after the test.
     """
 
     @patch("nbp_sessions.requests.get")
     def test_csv_file_is_created(self, mock_get):
-        """Po wyborze eksportu plik CSV powinien zostać utworzony."""
+        """After selecting export, the CSV file should be created."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -233,13 +233,13 @@ class TestCSVExportPipeline(unittest.TestCase):
 
                 expected_file = os.path.join(tmpdir, "export_SESSION_ANALYSIS.csv")
                 self.assertTrue(os.path.exists(expected_file),
-                                msg="Plik CSV nie został utworzony")
+                                msg="CSV file was not created")
             finally:
                 os.chdir(original_dir)
 
     @patch("nbp_sessions.requests.get")
     def test_csv_has_correct_headers(self, mock_get):
-        """Pierwszy wiersz CSV powinien zawierać nagłówki ['Measure', 'Result']."""
+        """First row of CSV should contain headers ['Measure', 'Result']."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -267,7 +267,7 @@ class TestCSVExportPipeline(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_csv_has_three_data_rows(self, mock_get):
-        """CSV dla SESSION_ANALYSIS powinien mieć 3 wiersze danych (+ nagłówek)."""
+        """CSV for SESSION_ANALYSIS should have 3 data rows (+ header)."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -289,13 +289,13 @@ class TestCSVExportPipeline(unittest.TestCase):
                 with open(csv_path, encoding="utf-8") as f:
                     rows = list(csv.reader(f))
 
-                self.assertEqual(len(rows), 4)  # nagłówek + 3 wiersze
+                self.assertEqual(len(rows), 4)  # header + 3 rows
             finally:
                 os.chdir(original_dir)
 
     @patch("nbp_sessions.requests.get")
     def test_csv_not_created_when_export_declined(self, mock_get):
-        """Gdy użytkownik odmawia eksportu, plik CSV nie powinien powstać."""
+        """When the user declines export, the CSV file should not be created."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -308,13 +308,13 @@ class TestCSVExportPipeline(unittest.TestCase):
                 dp = _build_dp(AnalysisType.SESSION_ANALYSIS, Currency.US_DOLLAR,
                                period=AnalysisPeriod.ONE_WEEK)
                 dp.cli.acquire_information = MagicMock()
-                dp.cli.ask_export.return_value = False  # odmowa eksportu
+                dp.cli.ask_export.return_value = False  # export declined
 
                 dp.run()
 
                 csv_path = os.path.join(tmpdir, "export_SESSION_ANALYSIS.csv")
                 self.assertFalse(os.path.exists(csv_path),
-                                 msg="Plik CSV nie powinien zostać utworzony")
+                                 msg="CSV file should not be created")
             finally:
                 os.chdir(original_dir)
 

@@ -16,7 +16,7 @@ from CLI import AnalysisPeriod
 
 
 def _make_mock_response(rates: list) -> MagicMock:
-    """Pomocnik — tworzy zamockowany obiekt odpowiedzi HTTP z podanymi kursami."""
+    """Helper — creates a mocked HTTP response object with the provided rates."""
     mock_resp = MagicMock()
     mock_resp.status_code = 200
     mock_resp.raise_for_status = MagicMock()
@@ -30,18 +30,18 @@ def _make_mock_response(rates: list) -> MagicMock:
 
 class TestFetchQuotesIntoCalculateSessions(unittest.TestCase):
     """
-    INT-01: Integracja nbp_sessions.fetch_quotes + data_processor.calculate_sessions.
+    INT-01: Integration nbp_sessions.fetch_quotes + data_processor.calculate_sessions.
 
-    Weryfikuje, że:
-    - dane zwrócone przez fetch_quotes (typ Decimal w Quote.mid) są poprawnie
-      konwertowane do float przed przekazaniem do calculate_sessions,
-    - wyniki sesji są spójne z rzeczywistymi zmianami kursów,
-    - suma flat+rising+losing == liczba kwotowań.
+    Verifies that:
+    - data returned by fetch_quotes (Decimal type in Quote.mid) is correctly
+      converted to float before passing to calculate_sessions,
+    - session results are consistent with actual rate changes,
+    - sum of flat+rising+losing == number of quotes.
     """
 
     @patch("nbp_sessions.requests.get")
     def test_rising_then_falling_session(self, mock_get):
-        """Kurs rośnie, potem spada — oczekiwane 1 rising i 1 losing."""
+        """Rate rises, then falls — expected 1 rising and 1 losing."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -54,11 +54,11 @@ class TestFetchQuotesIntoCalculateSessions(unittest.TestCase):
 
         self.assertEqual(result["rising"], 1)
         self.assertEqual(result["losing"], 1)
-        self.assertEqual(result["flat"], 1)  # pierwszy element zawsze flat
+        self.assertEqual(result["flat"], 1)  # first element is always flat
 
     @patch("nbp_sessions.requests.get")
     def test_total_count_equals_number_of_quotes(self, mock_get):
-        """Suma wszystkich typów sesji musi równać się liczbie kwotowań."""
+        """Sum of all session types must equal the number of quotes."""
         rates = [{"effectiveDate": f"2024-01-{i:02d}", "mid": 4.0 + i * 0.01}
                  for i in range(2, 10)]
         mock_get.return_value = _make_mock_response(rates)
@@ -72,7 +72,7 @@ class TestFetchQuotesIntoCalculateSessions(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_flat_rate_detected(self, mock_get):
-        """Niezmienne kursy — wszystkie sesje powinny być flat."""
+        """Constant rates — all sessions should be flat."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.00},
@@ -90,9 +90,9 @@ class TestFetchQuotesIntoCalculateSessions(unittest.TestCase):
     @patch("nbp_sessions.requests.get")
     def test_quotes_sorted_by_date_before_processing(self, mock_get):
         """
-        API może zwrócić kursy w dowolnej kolejności.
-        fetch_quotes nie sortuje — ale count_sessions sortuje.
-        Sprawdzamy, czy wyniki są identyczne niezależnie od kolejności wejścia.
+        API can return rates in any order.
+        fetch_quotes does not sort — but count_sessions sorts.
+        We check if the results are identical regardless of the input order.
         """
         ordered_rates = [
             {"effectiveDate": "2024-01-02", "mid": 4.00},
@@ -121,15 +121,15 @@ class TestFetchQuotesIntoCalculateSessions(unittest.TestCase):
 
 class TestFetchQuotesIntoStatisticalMeasures(unittest.TestCase):
     """
-    INT-02: Integracja nbp_sessions.fetch_quotes + data_processor.calculate_statistical_measures.
+    INT-02: Integration nbp_sessions.fetch_quotes + data_processor.calculate_statistical_measures.
 
-    Weryfikuje, że realne dane z API mogą być przetworzone przez moduł statystyczny
-    bez wyjątków i że wyniki są sensowne (np. stdev >= 0, median w zakresie danych).
+    Verifies that real data from the API can be processed by the statistical module
+    without exceptions and that the results make sense (e.g. stdev >= 0, median within data range).
     """
 
     @patch("nbp_sessions.requests.get")
     def test_statistical_measures_no_exception(self, mock_get):
-        """Obliczenia statystyczne na danych z API nie powinny rzucać wyjątków."""
+        """Statistical calculations on data from the API should not raise exceptions."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": f"2024-01-{i:02d}", "mid": 3.90 + i * 0.05}
             for i in range(2, 7)
@@ -144,7 +144,7 @@ class TestFetchQuotesIntoStatisticalMeasures(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_stdev_non_negative(self, mock_get):
-        """Odchylenie standardowe zawsze powinno być >= 0."""
+        """Standard deviation should always be >= 0."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": "2024-01-02", "mid": 4.10},
             {"effectiveDate": "2024-01-03", "mid": 4.05},
@@ -161,7 +161,7 @@ class TestFetchQuotesIntoStatisticalMeasures(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_median_within_data_range(self, mock_get):
-        """Mediana powinna mieścić się w zakresie [min, max] danych."""
+        """Median should be within the [min, max] range of the data."""
         rates_values = [4.10, 4.05, 4.20, 3.95, 4.15]
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": f"2024-01-{i+2:02d}", "mid": v}
@@ -177,7 +177,7 @@ class TestFetchQuotesIntoStatisticalMeasures(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_stdev_zero_for_constant_rates(self, mock_get):
-        """Stały kurs waluty → odchylenie standardowe = 0."""
+        """Constant currency rate -> standard deviation = 0."""
         mock_get.return_value = _make_mock_response([
             {"effectiveDate": f"2024-01-{i:02d}", "mid": 4.00}
             for i in range(2, 7)
@@ -196,15 +196,15 @@ class TestFetchQuotesIntoStatisticalMeasures(unittest.TestCase):
 
 class TestTwoCurrenciesIntoChangeDistribution(unittest.TestCase):
     """
-    INT-03: Integracja dwóch wywołań fetch_quotes + calculate_change_distribution.
+    INT-03: Integration of two fetch_quotes calls + calculate_change_distribution.
 
-    Weryfikuje przepływ danych dla dwóch walut przez cały łańcuch:
-    API mock → Quote objects → float → calculate_change_distribution.
+    Verifies the data flow for two currencies through the entire chain:
+    API mock -> Quote objects -> float -> calculate_change_distribution.
     """
 
     @patch("nbp_sessions.requests.get")
     def test_change_distribution_two_currencies(self, mock_get):
-        """Dwie waluty, ta sama liczba kwotowań — poprawny rozkład zmian."""
+        """Two currencies, same number of quotes — correct change distribution."""
         rates_usd = {"rates": [
             {"effectiveDate": "2024-01-02", "mid": 4.00},
             {"effectiveDate": "2024-01-03", "mid": 4.10},
@@ -235,8 +235,8 @@ class TestTwoCurrenciesIntoChangeDistribution(unittest.TestCase):
     @patch("nbp_sessions.requests.get")
     def test_mismatched_quote_counts_raises(self, mock_get):
         """
-        Jeśli dwie waluty mają różną liczbę kwotowań (np. dni świąteczne),
-        calculate_change_distribution powinien zgłosić ValueError.
+        If two currencies have a different number of quotes (e.g. public holidays),
+        calculate_change_distribution should raise a ValueError.
         """
         rates_usd = {"rates": [
             {"effectiveDate": "2024-01-02", "mid": 4.00},
@@ -261,7 +261,7 @@ class TestTwoCurrenciesIntoChangeDistribution(unittest.TestCase):
 
     @patch("nbp_sessions.requests.get")
     def test_distribution_buckets_sum_equals_changes_count(self, mock_get):
-        """Suma wszystkich kubełków rozkładu == liczba par kursów."""
+        """Sum of all distribution buckets == number of quote pairs."""
         rates = [{"effectiveDate": f"2024-01-{i:02d}", "mid": 4.0 + i * 0.02}
                  for i in range(2, 8)]
 
@@ -286,29 +286,29 @@ class TestTwoCurrenciesIntoChangeDistribution(unittest.TestCase):
 
 class TestGetDateRangeDateConsistency(unittest.TestCase):
     """
-    INT-04: Integracja data_proceser.get_date_range + nbp_sessions.subtract_months.
+    INT-04: Integration data_proceser.get_date_range + nbp_sessions.subtract_months.
 
-    Weryfikuje, że zakresy dat generowane przez orkiestrator są poprawne:
-    - start < end dla każdego okresu,
+    Verifies that date ranges generated by the orchestrator are correct:
+    - start < end for each period,
     - end == date.today(),
-    - zakresy nie nakładają się w sensowny sposób.
+    - ranges do not overlap in an illogical way.
     """
 
     def setUp(self):
-        """Tworzy instancję data_proceser bez inicjalizacji CLI."""
+        """Creates a data_proceser instance without CLI initialization."""
         import data_proceser as dp_module
         self.dp = object.__new__(dp_module.data_proceser)
 
     def test_all_periods_have_start_before_end(self):
-        """Dla każdego AnalysisPeriod: start < end."""
+        """For each AnalysisPeriod: start < end."""
         for period in AnalysisPeriod:
             with self.subTest(period=period.name):
                 start, end = self.dp.get_date_range(period)
                 self.assertLess(start, end,
-                    msg=f"start >= end dla okresu {period.name}")
+                    msg=f"start >= end for period {period.name}")
 
     def test_end_date_is_today(self):
-        """Data końcowa powinna być zawsze dzisiejszą datą."""
+        """End date should always be today's date."""
         today = date.today()
         for period in AnalysisPeriod:
             with self.subTest(period=period.name):
@@ -316,18 +316,18 @@ class TestGetDateRangeDateConsistency(unittest.TestCase):
                 self.assertEqual(end, today)
 
     def test_longer_period_has_earlier_start(self):
-        """Dłuższy okres powinien mieć wcześniejszą datę startową."""
+        """Longer period should have an earlier start date."""
         start_week, _ = self.dp.get_date_range(AnalysisPeriod.ONE_WEEK)
         start_year, _ = self.dp.get_date_range(AnalysisPeriod.ONE_YEAR)
         self.assertLess(start_year, start_week)
 
     def test_one_week_range_is_seven_days(self):
-        """Zakres ONE_WEEK powinien wynosić dokładnie 7 dni."""
+        """ONE_WEEK range should be exactly 7 days."""
         start, end = self.dp.get_date_range(AnalysisPeriod.ONE_WEEK)
         self.assertEqual((end - start).days, 7)
 
     def test_unknown_period_returns_same_day_range(self):
-        """Nieznany okres (fallback) zwraca zakres zerowy: start == end == today."""
+        """Unknown period (fallback) returns zero range: start == end == today."""
         start, end = self.dp.get_date_range(None)
         self.assertEqual(start, end)
         self.assertEqual(start, date.today())
