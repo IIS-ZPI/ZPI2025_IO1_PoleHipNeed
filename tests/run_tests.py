@@ -1,14 +1,14 @@
 """
-run_tests.py — uruchamia wszystkie testy projektu.
+run_tests.py — runs all tests for the project.
 
-Użycie:
-    # Tylko testy jednostkowe (domyślnie):
+Usage:
+    # Only unit tests (default):
     python tests/run_tests.py
 
-    # Testy jednostkowe + integracyjne (bez sieci):
+    # Unit and integration tests (without real API):
     python tests/run_tests.py --integration
 
-    # Wszystkie testy włącznie z prawdziwym API NBP:
+    # All tests including real NBP API:
     python tests/run_tests.py --all
 """
 
@@ -18,12 +18,10 @@ import io
 import unittest
 import argparse
 
-# Zapewnij obsługę UTF-8 na Windows (polskie znaki w nazwach testów)
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-# Dodaj katalog projektu do ścieżki
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
@@ -73,11 +71,9 @@ def main():
 
     verbosity = 2
 
-    # Ustaw flagę dla testów API
     if args.all:
         os.environ["INTEGRATION_TESTS"] = "1"
 
-    # Zbierz testy
     unit_suite = collect_unit_tests()
     total_suite = unittest.TestSuite()
     total_suite.addTests(unit_suite)
@@ -86,7 +82,6 @@ def main():
         integration_suite = collect_integration_tests()
         total_suite.addTests(integration_suite)
 
-    # Wyświetl nagłówek
     print("\n" + "=" * 60)
     print("  NBP Data Analysis — Test Runner")
     print("=" * 60)
@@ -95,11 +90,9 @@ def main():
     print(f"  Mode: {mode}")
     print("=" * 60)
 
-    # Uruchom
     runner = unittest.TextTestRunner(verbosity=verbosity, stream=sys.stdout)
     result = runner.run(total_suite)
 
-    # Podsumowanie
     print("\n" + "=" * 60)
     print("  TEST RESULTS")
     print("=" * 60)
