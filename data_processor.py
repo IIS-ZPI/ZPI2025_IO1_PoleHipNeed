@@ -29,9 +29,11 @@ def calculate_statistical_measures(sessions):
 
 def calculate_change_distribution(currency1_history, currency2_history,steps):
     if len(currency1_history) != len(currency2_history) or steps < 1:
-        raise ValueError(
-            "data length mismatch for change distribution"
-        )
+        raise ValueError("Lengths of both histories must be equal and steps must be >= 1.")
+    if len(currency1_history) < 2:
+        raise ValueError("At least 2 data points are required to calculate changes.")
+    if any(v == 0 for v in currency2_history):
+        raise ValueError("Denominator (currency2) contains zero — cannot divide.")
     previous_ratio = currency1_history[0] / currency2_history[0]
     changes = []
     for i in range(1,len(currency1_history)):
@@ -47,4 +49,5 @@ def calculate_change_distribution(currency1_history, currency2_history,steps):
         range_bucket = bisect_right(ratio_ranges,ratio) -1
         results[min(range_bucket,steps-1)] += 1
     return results, ratio_ranges
+
 
