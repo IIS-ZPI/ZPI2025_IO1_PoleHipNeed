@@ -281,7 +281,7 @@ class TestTwoCurrenciesIntoChangeDistribution(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# INT-04: data_proceser.get_date_range → spójność zakresów dat
+# INT-04: data_proceser.get_date_range → date ranges consistency
 # ---------------------------------------------------------------------------
 
 class TestGetDateRangeDateConsistency(unittest.TestCase):
