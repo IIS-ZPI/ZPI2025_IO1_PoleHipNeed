@@ -72,12 +72,25 @@ class data_proceser:
                         end_date = start_date + relativedelta(months=1)
                     else:
                         end_date = start_date + relativedelta(months=3)
-                        
-                    quotes1 = nbp_sessions.fetch_quotes(self.cli.selected_currency.value, start_date, end_date)
-                    quotes2 = nbp_sessions.fetch_quotes(self.cli.secondary_currency.value, start_date, end_date)
-                    
-                    sessions1 = [float(q.mid) for q in quotes1]
-                    sessions2 = [float(q.mid) for q in quotes2]
+
+                    primary_currency = self.cli.selected_currency.value
+                    secondary_currency = self.cli.secondary_currency.value
+
+                    if primary_currency == secondary_currency:
+                        self.cli.my_print('error', "Primary currency must be different from secondary currency.")
+                    elif primary_currency == 'PLN':
+                        quotes = nbp_sessions.fetch_quotes(self.cli.secondary_currency.value, start_date, end_date)
+                        sessions1 = [float(1.0)]*len(quotes)
+                        sessions2 = [float(q.mid) for q in quotes]
+                    elif secondary_currency == 'PLN':
+                        quotes = nbp_sessions.fetch_quotes(self.cli.selected_currency.value, start_date, end_date)
+                        sessions1 = [float(q.mid) for q in quotes]
+                        sessions2 = [float(1.0)]*len(quotes)
+                    else:
+                        quotes1 = nbp_sessions.fetch_quotes(self.cli.selected_currency.value, start_date, end_date)
+                        quotes2 = nbp_sessions.fetch_quotes(self.cli.secondary_currency.value, start_date, end_date)
+                        sessions1 = [float(q.mid) for q in quotes1]
+                        sessions2 = [float(q.mid) for q in quotes2]
                     
                     results, ratio_ranges = data_processor.calculate_change_distribution(sessions1, sessions2, steps=10)
                     title = "Change Distribution"

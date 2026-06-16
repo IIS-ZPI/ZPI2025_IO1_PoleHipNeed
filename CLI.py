@@ -41,6 +41,7 @@ class AnalysisPeriod(IntEnum):
         return string
 
 class Currency(Enum):
+    POLISH_ZLOTY = 'PLN'
     THAI_BAHT = 'THB'
     US_DOLLAR = 'USD'
     AUSTRALIAN_DOLLAR = 'AUD'
@@ -75,14 +76,20 @@ class Currency(Enum):
     SPECIAL_DRAWING_RIGHTS = 'XDR'
 
     @classmethod
-    def has_value(cls, value):
-        return value in cls._value2member_map_
+    def has_value(cls, value, change_distribution=False):
+        values = cls._value2member_map_
+        if not change_distribution:
+            values = (val for val in values if val != 'PLN')
+        return value in values
 
     @classmethod
-    def to_string(cls, divider):
+    def to_string(cls, divider, change_distribution=False):
         string = ''
         first = True
-        for c in cls._value2member_map_:
+        values = cls._value2member_map_
+        if not change_distribution:
+            values = (val for val in values if val != 'PLN')
+        for c in values:
             if not first:
                 string += divider
             string += c
@@ -121,7 +128,8 @@ class CLI:
 
     def acquire_information(self):
         self.acquire_analysis_type()
-        self.acquire_currency()
+        change_distribution = self.selected_analysis == AnalysisType.CHANGE_DISTRIBUTION
+        self.acquire_currency(change_distribution)
         if self.selected_analysis == AnalysisType.CHANGE_DISTRIBUTION:
             self.acquire_secondary_currency()
             self.acquire_period_change_distribution()
@@ -159,15 +167,15 @@ class CLI:
                 self.my_print('success',  'selected: ', cli.selected_analysis.name.lower().replace('_', ' '))
 
 
-    def acquire_currency(self):
+    def acquire_currency(self, change_distribution = False):
         selected_currency = None
 
         self.my_print('default', "select currency for analysis by inputting its code")
-        self.my_print('info', 'available currencies: ', Currency.to_string(', ')," ")
+        self.my_print('info', 'available currencies: ', Currency.to_string(', ',change_distribution)," ")
 
         selected_currency = self.get_input().upper()
 
-        if not Currency.has_value(selected_currency):
+        if not Currency.has_value(selected_currency,change_distribution):
             self.my_print('error', "INPUT INVALID (currency code not recognized)")
             self.acquire_currency()
         else:
@@ -178,11 +186,11 @@ class CLI:
         selected_currency = None
 
         self.my_print('default', "select currency for comparison by inputting its code")
-        self.my_print('info', 'available currencies: ', Currency.to_string(', ')," ")
+        self.my_print('info', 'available currencies: ', Currency.to_string(', ',True)," ")
 
         selected_currency = self.get_input().upper()
 
-        if not Currency.has_value(selected_currency):
+        if not Currency.has_value(selected_currency,True):
             self.my_print('error', "INPUT INVALID (currency code not recognized)")
             self.acquire_secondary_currency()
         else:
