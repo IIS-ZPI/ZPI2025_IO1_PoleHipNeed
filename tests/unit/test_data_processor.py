@@ -34,12 +34,14 @@ class TestDataProcessor(unittest.TestCase):
         self.assertIn("coefficient of variation", result)
 
     def test_change_distribution_invalid_lengths(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             calculate_change_distribution([1, 2], [1], 5)
+        self.assertIn("equal", str(ctx.exception))
 
     def test_change_distribution_invalid_steps(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             calculate_change_distribution([1, 2], [1, 2], 0)
+        self.assertIn(">= 1", str(ctx.exception))
 
     def test_change_distribution_valid(self):
         results, ranges = calculate_change_distribution(
@@ -53,12 +55,13 @@ class TestDataProcessor(unittest.TestCase):
         self.assertEqual(sum(results), 2)
 
     def test_change_distribution_zero_denominator(self):
-        with self.assertRaises((ValueError, ZeroDivisionError)):
+        with self.assertRaises(ValueError) as ctx:
             calculate_change_distribution(
                 [10, 20, 30],
                 [5, 0, 10],
                 5
             )
+        self.assertIn("zero", str(ctx.exception))
 
     def test_calculate_sessions_single_element(self):
         """Jeden element — zawsze liczony jako flat (prev == session)."""
@@ -126,9 +129,10 @@ class TestDataProcessor(unittest.TestCase):
         self.assertEqual(len(results), 3)
 
     def test_change_distribution_single_element_raises(self):
-        """Lista jednoelementowa — brak par, max() na pustej liście → ValueError."""
-        with self.assertRaises((ValueError, Exception)):
+        """Lista jednoelementowa — wymaga co najmniej 2 punktow danych."""
+        with self.assertRaises(ValueError) as ctx:
             calculate_change_distribution([10], [5], 2)
+        self.assertIn("2 data points", str(ctx.exception))
 
 
 class TestNBPSessions(unittest.TestCase):

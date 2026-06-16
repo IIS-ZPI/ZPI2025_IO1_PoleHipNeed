@@ -188,24 +188,6 @@ class TestTwoRealCurrenciesChangeDistribution(unittest.TestCase):
         self.assertEqual(len(results), 5)
         self.assertEqual(sum(results), len(sessions_usd) - 1)
 
-    def test_mismatched_counts_detected(self):
-        """
-        Dokumentuje znany problem: USD i CHF mogą mieć różną liczbę sesji.
-        W takim przypadku calculate_change_distribution rzuca ValueError.
-        Aplikacja powinna obsłużyć ten błąd przed wywołaniem funkcji.
-        """
-        quotes_usd = fetch_quotes("USD", self.start, self.end)
-        quotes_jpy = fetch_quotes("JPY", self.start, self.end)
-
-        sessions_usd = [float(q.mid) for q in quotes_usd]
-        sessions_jpy = [float(q.mid) for q in quotes_jpy]
-
-        if len(sessions_usd) == len(sessions_jpy):
-            self.skipTest("USD i JPY mają tę samą liczbę kwotowań — problem nie wystąpił")
-
-        # Dokumentacja bugu: różna liczba sesji → ValueError
-        with self.assertRaises(ValueError):
-            calculate_change_distribution(sessions_usd, sessions_jpy, steps=5)
 
     def test_distribution_bucket_sum_invariant(self):
         """
