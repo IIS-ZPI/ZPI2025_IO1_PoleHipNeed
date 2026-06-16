@@ -9,8 +9,6 @@ import nbp_sessions
 class data_proceser:
     def __init__(self):
         self.cli = CLI()
-        # Fix for a bug in CLI.py referencing global 'cli' variable
-        CLI_module.cli = self.cli
 
     def get_date_range(self, period):
         today = date.today()
