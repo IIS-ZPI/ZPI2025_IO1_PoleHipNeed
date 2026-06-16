@@ -52,22 +52,22 @@ def collect_integration_tests():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Runner testów projektu NBP Data Analysis")
+    parser = argparse.ArgumentParser(description="NBP Data Analysis Test Runner")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--integration",
         action="store_true",
-        help="Uruchom testy jednostkowe + integracyjne (bez prawdziwego API)"
+        help="Run unit tests + integration tests (without real API)"
     )
     group.add_argument(
         "--all",
         action="store_true",
-        help="Uruchom wszystkie testy włącznie z prawdziwym API NBP"
+        help="Run all tests including real NBP API"
     )
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
-        help="Szczegółowy output (domyślnie włączony)"
+        help="Detailed output (default)"
     )
     args = parser.parse_args()
 
@@ -91,8 +91,8 @@ def main():
     print("  NBP Data Analysis — Test Runner")
     print("=" * 60)
 
-    mode = "Wszystkie (z API)" if args.all else ("Jednostkowe + Integracyjne" if args.integration else "Jednostkowe")
-    print(f"  Tryb: {mode}")
+    mode = "All (with API)" if args.all else ("Unit + Integration" if args.integration else "Unit")
+    print(f"  Mode: {mode}")
     print("=" * 60)
 
     # Uruchom
@@ -101,15 +101,15 @@ def main():
 
     # Podsumowanie
     print("\n" + "=" * 60)
-    print("  PODSUMOWANIE")
+    print("  TEST RESULTS")
     print("=" * 60)
-    print(f"  Uruchomiono : {result.testsRun}")
-    print(f"  Sukces      : {result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped)}")
-    print(f"  Pominięto   : {len(result.skipped)}")
-    print(f"  Błędy       : {len(result.errors)}")
-    print(f"  Niepowodzenia: {len(result.failures)}")
+    print(f"  Ran : {result.testsRun}")
+    print(f"  Success: {result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped)}")
+    print(f"  Skipped: {len(result.skipped)}")
+    print(f"  Errors: {len(result.errors)}")
+    print(f"  Failures: {len(result.failures)}")
 
-    status = "✅ WSZYSTKIE TESTY PRZESZŁY" if result.wasSuccessful() else "❌ NIEKTÓRE TESTY NIE PRZESZŁY"
+    status = "✅ ALL TESTS PASSED" if result.wasSuccessful() else "❌ SOME TESTS FAILED"
     print(f"\n  {status}")
     print("=" * 60)
 
