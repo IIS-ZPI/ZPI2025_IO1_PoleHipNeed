@@ -43,11 +43,10 @@ def fetch_quotes(code: str, start: date, end: date) -> list[Quote]:
         payload = response.json()
     except requests.exceptions.SSLError as exc:
         raise RuntimeError(
-            "SSL error while connecting to the NBP API. "
-            "Ensure the environment has up-to-date certificates or use requests with certifi."
+            "Unable to securely connect to the NBP API. Please try again later."
         ) from exc
     except requests.exceptions.RequestException as exc:
-        raise RuntimeError(f"Failed to connect to the NBP API: {exc}") from exc
+        raise RuntimeError("Failed to connect to the NBP API. Check your internet connection or try again later.") from exc
 
     rates = payload.get("rates", [])
     if not rates:
