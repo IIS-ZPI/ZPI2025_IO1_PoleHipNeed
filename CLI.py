@@ -152,12 +152,11 @@ class CLI:
 
                 try:
                     selected_analysis = int(user_input)
+                    if not AnalysisType.has_value(selected_analysis):
+                        self.my_print('error', "INPUT INVALID (number not in available types)")
+                        continue
                 except ValueError:
                     self.my_print('error', "INPUT INVALID (please enter a number)")
-                    continue
-
-                if  not AnalysisType.has_value(selected_analysis):
-                    self.my_print('error', "INPUT INVALID (number not in available types)")
                     continue
                 else:
                     self.selected_analysis = AnalysisType(selected_analysis)
@@ -211,12 +210,11 @@ class CLI:
                 continue
             try:
                 selected_period = int(user_input)
+                if not AnalysisPeriod.has_value(selected_period):
+                    self.my_print('error', "INPUT INVALID (number not in available periods)")
+                    continue
             except ValueError:
                 self.my_print('error', "INPUT INVALID (please enter a number)")
-                continue
-
-            if not AnalysisPeriod.has_value(selected_period):
-                self.my_print('error', "INPUT INVALID (number not in available periods)")
                 continue
             else:
                 self.analysis_period = AnalysisPeriod(selected_period)
@@ -289,7 +287,7 @@ class CLI:
                 self.my_print('error', "INTERNAL ERROR: change_period not set")
                 continue
 
-            if start_date > min_date:
+            if min_date < start_date <= today:
                 self.my_print(
                     'error',
                     f"INPUT INVALID (date insufficient, earliest allowed: {min_date.strftime('%d.%m.%Y')})"
