@@ -144,7 +144,7 @@ class CLI:
                 self.my_print('info', int(AnalysisType.STATISTICAL_MEASURE), "- Statistical measure")
                 self.my_print('info', int(AnalysisType.CHANGE_DISTRIBUTION),"- Change distribution")
 
-                user_input = self.get_input()
+                user_input = self.get_input().strip()
 
                 if len(user_input) != 1:
                     self.my_print('error', "INPUT INVALID (only one character allowed)")
@@ -169,7 +169,7 @@ class CLI:
             self.my_print('default', "select currency for analysis by inputting its code")
             self.my_print('info', 'available currencies: ', Currency.to_string(', ',change_distribution)," ")
 
-            selected_currency = self.get_input().upper()
+            selected_currency = self.get_input().upper().strip()
 
             if not Currency.has_value(selected_currency,change_distribution):
                 self.my_print('error', "INPUT INVALID (currency code not recognized)")
@@ -184,7 +184,7 @@ class CLI:
             self.my_print('default', "select currency for comparison by inputting its code")
             self.my_print('info', 'available currencies: ', Currency.to_string(', ',True)," ")
 
-            selected_currency = self.get_input().upper()
+            selected_currency = self.get_input().upper().strip()
 
             if not Currency.has_value(selected_currency,True):
                 self.my_print('error', "INPUT INVALID (currency code not recognized)")
@@ -203,7 +203,7 @@ class CLI:
             self.my_print('default', "select analysis period")
             self.my_print('info', AnalysisPeriod.to_string('\n'),' ')
 
-            user_input = self.get_input()
+            user_input = self.get_input().strip()
 
             if len(user_input) != 1:
                 self.my_print('error', "INPUT INVALID (only one character allowed)")
@@ -228,7 +228,7 @@ class CLI:
     def ask_repeat(self):
         while True:
             self.my_print('default', "perform another analysis? (y/n)")
-            answer = self.get_input()
+            answer = self.get_input().strip()
             if answer.lower() == 'y':
                 print(Fore.RESET)
                 return True
@@ -241,7 +241,7 @@ class CLI:
     def ask_export(self):
         while True:
             self.my_print('default', "download table as csv? (y/n)")
-            answer = self.get_input()
+            answer = self.get_input().strip()
             if answer.lower() == 'y':
                 return True
             elif answer.lower() == 'n':
@@ -254,7 +254,7 @@ class CLI:
             self.my_print('default', "select timeframe length")
             self.my_print('info', 1, "- monthly")
             self.my_print('info', 2, "- quarterly")
-            answer = self.get_input()
+            answer = self.get_input().strip()
             if answer == '1':
                 self.change_period = 'monthly'
                 self.my_print('success', 'selected: ', 'monthly')
@@ -269,7 +269,7 @@ class CLI:
     def acquire_start_date(self):
         while True:
             self.my_print('default', "select start date (format: DD.MM.YYYY)")
-            user_input = self.get_input()
+            user_input = self.get_input().strip()
 
             try:
                 start_date = datetime.strptime(user_input, "%d.%m.%Y")
