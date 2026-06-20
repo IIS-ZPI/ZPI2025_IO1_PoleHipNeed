@@ -296,8 +296,8 @@ class TestGetDateRangeDateConsistency(unittest.TestCase):
 
     def setUp(self):
         """Creates a data_proceser instance without CLI initialization."""
-        import data_proceser as dp_module
-        self.dp = object.__new__(dp_module.data_proceser)
+        import dataflow_manager as dp_module
+        self.dp = object.__new__(dp_module.DataflowManager)
 
     def test_all_periods_have_start_before_end(self):
         """For each AnalysisPeriod: start < end."""
