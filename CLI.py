@@ -103,6 +103,7 @@ class CLI:
         self.secondary_currency = None
         self.analysis_period = None
         self.change_period = None
+        self.start_date = None
 
         print(Fore.CYAN+"----------------------------------------------\n"
                         "    NBP Data Analysis Tool by PoleHipNeed\n"
@@ -221,9 +222,9 @@ class CLI:
                 self.my_print('success',  'selected: ', self.analysis_period.name.lower().replace('_', ' '))
                 return
 
-    def display_table(self, table, headers, title):
+    def display_table(self, table, table_headers, title):
         print(Fore.LIGHTWHITE_EX + title + Fore.RESET)
-        print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
+        print(tabulate(table, headers=table_headers, tablefmt="fancy_grid"))
 
     def ask_repeat(self):
         while True:
@@ -272,7 +273,7 @@ class CLI:
             user_input = self.get_input().strip()
 
             try:
-                start_date = datetime.strptime(user_input, "%d.%m.%Y")
+                self.start_date = datetime.strptime(user_input, "%d.%m.%Y")
             except ValueError:
                 self.my_print('error', "INPUT INVALID (wrong date format)")
                 continue
@@ -287,23 +288,23 @@ class CLI:
                 self.my_print('error', "INTERNAL ERROR: change_period not set")
                 continue
 
-            if min_date < start_date <= today:
+            if min_date < self.start_date <= today:
                 self.my_print(
                     'error',
                     f"INPUT INVALID (date insufficient, earliest allowed: {min_date.strftime('%d.%m.%Y')})"
                 )
                 continue
 
-            if start_date > today:
+            if self.start_date > today:
                 self.my_print('error', "INPUT INVALID (date cannot be in the future)")
                 continue
 
             self.my_print(
                 'success',
                 "selected: ",
-                start_date.strftime("%d/%m/%Y")
+                self.start_date.strftime("%d/%m/%Y")
             )
-            return start_date
+            return
 
     def display_status(self):
 

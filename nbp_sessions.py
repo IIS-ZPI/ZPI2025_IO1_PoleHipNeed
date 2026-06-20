@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import calendar
-import json
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -41,12 +40,10 @@ def fetch_quotes(code: str, start: date, end: date) -> list[Quote]:
             )
         response.raise_for_status()
         payload = response.json()
-    except requests.exceptions.SSLError as exc:
-        raise RuntimeError(
-            "Unable to securely connect to the NBP API. Please try again later."
-        ) from exc
-    except requests.exceptions.RequestException as exc:
-        raise RuntimeError("Failed to connect to the NBP API. Check your internet connection or try again later.") from exc
+    except requests.exceptions.SSLError:
+        raise RuntimeError("Unable to securely connect to the NBP API. Please try again later.")
+    except requests.exceptions.RequestException:
+        raise RuntimeError("Failed to connect to the NBP API. Check your internet connection or try again later.")
 
     rates = payload.get("rates", [])
     if not rates:

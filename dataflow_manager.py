@@ -1,12 +1,11 @@
 import csv
 from datetime import date
 from dateutil.relativedelta import relativedelta
-import CLI as CLI_module
 from CLI import CLI, AnalysisType, AnalysisPeriod
 import data_processor
 import nbp_sessions
 
-class data_proceser:
+class DataflowManager:
     def __init__(self):
         self.cli = CLI()
 
@@ -74,9 +73,7 @@ class data_proceser:
                     primary_currency = self.cli.selected_currency.value
                     secondary_currency = self.cli.secondary_currency.value
 
-                    if primary_currency == secondary_currency:
-                        self.cli.my_print('error', "Primary currency must be different from secondary currency.")
-                    elif primary_currency == 'PLN':
+                    if primary_currency == 'PLN':
                         quotes = nbp_sessions.fetch_quotes(self.cli.secondary_currency.value, start_date, end_date)
                         sessions1 = [float(1.0)]*len(quotes)
                         sessions2 = [float(q.mid) for q in quotes]
@@ -100,13 +97,29 @@ class data_proceser:
                 self.cli.display_table(table, headers, title)
 
                 if self.cli.ask_export():
-                    filename = f"export_{self.cli.selected_analysis.name}.csv"
-                    with open(filename, 'w', newline='', encoding='utf-8') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(headers)
-                        writer.writerows(table)
-                    self.cli.my_print('success', f"Exported to {filename}")
+                    try:
+                        filename = f"export_{self.cli.selected_analysis.name.lower()}_{self.cli.selected_currency.name.lower()}"
+                        analysis = self.cli.selected_analysis
+                        suffix = ''
+                        if analysis == AnalysisType.CHANGE_DISTRIBUTION:
+                            suffix += f"_{self.cli.secondary_currency.name.lower()}_{self.cli.change_period.lower()}_{self.cli.start_date.date().isoformat()}"
+                        if analysis == AnalysisType.STATISTICAL_MEASURE:
+                            suffix += f"_{self.cli.analysis_period.name.lower()}_{date.today().isoformat()}"
+                        if analysis == AnalysisType.SESSION_ANALYSIS:
+                            suffix += f"_{self.cli.analysis_period.name.lower()}_{date.today().isoformat()}"
 
+                        suffix += '.csv'
+                        filename += suffix
+
+                        with open(filename, 'w', newline='', encoding='utf-8') as f:
+                            writer = csv.writer(f)
+                            writer.writerow(headers)
+                            writer.writerows(table)
+                        self.cli.my_print('success', f"Exported to {filename}")
+                    except PermissionError:
+                        self.cli.my_print('error', "Permission denied.")
+                    except Exception:
+                        self.cli.my_print('error', 'Export to csv failed.')
             except Exception as e:
                 self.cli.my_print('error', f"An error occurred: {e}")
 
