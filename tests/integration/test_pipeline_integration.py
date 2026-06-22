@@ -1,13 +1,15 @@
 import csv
 import os
+import pathlib
 import sys
 import tempfile
 import unittest
+from datetime import date
 from unittest.mock import patch, MagicMock, call
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-import data_proceser as dp_module
+import dataflow_manager as dp_module
 from CLI import AnalysisType, AnalysisPeriod, Currency
 
 
@@ -26,7 +28,7 @@ def _build_dp(analysis_type, currency, period=None,
     Creates a data_proceser instance with a mocked CLI injected.
     Bypasses __init__ (which instantiates the real CLI with side effects).
     """
-    instance = object.__new__(dp_module.data_proceser)
+    instance = object.__new__(dp_module.DataflowManager)
 
     mock_cli = MagicMock()
     mock_cli.selected_analysis = analysis_type
@@ -231,7 +233,8 @@ class TestCSVExportPipeline(unittest.TestCase):
 
                 dp.run()
 
-                expected_file = os.path.join(tmpdir, "export_SESSION_ANALYSIS.csv")
+                filepath = f"export_{AnalysisType.SESSION_ANALYSIS.name.lower()}_{Currency.US_DOLLAR.name.lower()}_{AnalysisPeriod.ONE_WEEK.name.lower()}_{date.today().isoformat()}.csv"
+                expected_file = os.path.join(tmpdir, filepath)
                 self.assertTrue(os.path.exists(expected_file),
                                 msg="CSV file was not created")
             finally:
@@ -256,7 +259,8 @@ class TestCSVExportPipeline(unittest.TestCase):
 
                 dp.run()
 
-                csv_path = os.path.join(tmpdir, "export_SESSION_ANALYSIS.csv")
+                filepath = f"export_{AnalysisType.SESSION_ANALYSIS.name.lower()}_{Currency.US_DOLLAR.name.lower()}_{AnalysisPeriod.ONE_WEEK.name.lower()}_{date.today().isoformat()}.csv"
+                csv_path = os.path.join(tmpdir, filepath)
                 with open(csv_path, encoding="utf-8") as f:
                     reader = csv.reader(f)
                     header_row = next(reader)
@@ -285,7 +289,8 @@ class TestCSVExportPipeline(unittest.TestCase):
 
                 dp.run()
 
-                csv_path = os.path.join(tmpdir, "export_SESSION_ANALYSIS.csv")
+                filepath = f"export_{AnalysisType.SESSION_ANALYSIS.name.lower()}_{Currency.US_DOLLAR.name.lower()}_{AnalysisPeriod.ONE_WEEK.name.lower()}_{date.today().isoformat()}.csv"
+                csv_path = os.path.join(tmpdir, filepath)
                 with open(csv_path, encoding="utf-8") as f:
                     rows = list(csv.reader(f))
 
